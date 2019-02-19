@@ -32,6 +32,9 @@ window.addEventListener('DOMContentLoaded', () => {
             
             trigger.remove();
 
+            showConfirm();                              // Показывает подтверждение добавления в корзину
+            calcGoods(1);                               // Добавляет количество товаров в корзине
+
             removeBtn.classList.add('goods__item-remove');
             removeBtn.innerHTML = '&times';
             item.appendChild(removeBtn);
@@ -40,6 +43,73 @@ window.addEventListener('DOMContentLoaded', () => {
             if (empty) {
                 empty.remove();
             }
+            
+            calcTotal();                                // Считает общую стоимость в корзине
+            removeFromCart();                           // Удаляет товар в корзине
         });
-    }); 
+    });
+
+    function sliceTitle() {                             // Обрезает текст в карточке товара
+        titles.forEach(function(item) {
+            if (item.textContent.length < 70) {
+                return;
+            } else {
+                const str = item.textContent.slice(0, 71) + '...';
+                item.textContent = str;
+            }
+        });
+    }
+    sliceTitle();
+
+    function showConfirm() {                            // Анимация добавления в корзину
+        confirm.style.display = 'block';
+        let counter = 100;
+        const id = setInterval(frame, 10);
+        function frame() {
+            if ( counter == 10) {
+                clearInterval(id);                      // Остановка анимации
+                confirm.style.display = 'none';
+            } else {
+                counter--;
+                confirm.style.transform = `translateY(-${counter}px)`;
+                confirm.style.opacity = '.' + counter;
+            }
+            
+        }
+    }
+    
+    function calcGoods(i) {
+        const items = cartWrapper.querySelectorAll('.goods__item');
+        badge.textContent = i + items.length;
+        if (items.length == 0) {
+            let empty = cartWrapper.querySelector('.empty');
+            if (empty) {
+                empty = document.createElement('div');
+                empty.textContent = 'Ваша корзина пока пуста';
+                empty.classList.add('empty');
+                cartWrapper.appendChild(empty);
+            }
+        }
+    }
+
+    function calcTotal() {
+        const prices = document.querySelectorAll('.cart__wrapper > .goods__item > .goods__price > span');
+        let total = 0;
+        prices.forEach(function(item) {
+            total += +item.textContent;
+        });
+        totalCost.textContent = total;
+    }
+
+    function removeFromCart() {
+        const removeBtn = cartWrapper.querySelectorAll('.goods__item-remove');
+        removeBtn.forEach(function(btn) {
+            btn.addEventListener('click', () => {
+                btn.parentElement.remove();
+                calcGoods(0);
+                calcTotal();
+            });
+        });
+    }
+
 });
